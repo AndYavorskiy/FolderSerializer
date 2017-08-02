@@ -1,19 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
 using System.Windows.Forms;
-using System.IO;
 
 namespace Folder_Serializer
 {
@@ -22,6 +8,8 @@ namespace Folder_Serializer
     /// </summary>
     public partial class MainWindow : Window
     {
+        DirectoryTreeManager treeManager;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -29,7 +17,6 @@ namespace Folder_Serializer
 
         private void pickOutButton_Click(object sender, RoutedEventArgs e)
         {
-            treeViev.Items.Clear();
 
             using (var fbd = new FolderBrowserDialog())
             {
@@ -39,35 +26,92 @@ namespace Folder_Serializer
                 {
                     selectedFolderLabel.Content = fbd.SelectedPath;
 
-                    TreeBuilder treeBuilder = new TreeBuilder(fbd.SelectedPath);
-                    treeBuilder.BuildTree();
-                    Component component = treeBuilder.Root;
+                    treeManager = new DirectoryTreeManager(fbd.SelectedPath);
+                    treeManager.BuildTree();
+                    ShowTree();
 
-                    treeViev.Items.Add(treeBuilder.GetTreeView());
-
-                    #region PrevCode
-                    //selectedFolderLabel.Content = fbd.SelectedPath;
-
-                    //DirectoryInfo[] directories = new DirectoryInfo(fbd.SelectedPath).GetDirectories();
-
-                    //TreeViewItem tvi = new TreeViewItem();
-                    //tvi.Header = fbd.SelectedPath;
-
-                    //foreach (var item in directories)
-                    //{
-                    //    TreeViewItem treenode = new TreeViewItem() { Header = $"{item.FullName}" };
-                    //    foreach (var nodeItem in item.GetDirectories())
-                    //    {
-                    //        treenode.Items.Add(new TreeViewItem() { Header = $"{nodeItem.FullName}" });
-                    //    }
-                    //    tvi.Items.Add(treenode);
-                    //}
-                    //treeViev.Items.Add(tvi);
-                    #endregion
                 }
             }
         }
 
-        
+        private void ShowTree()
+        {
+            treeViev.Items.Clear();
+            treeViev.Items.Add(treeManager.GetTreeView());
+        }
+
+        private void serializeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (treeManager != null)
+            {
+                using (var sfd = new SaveFileDialog())
+                {
+                    sfd.Filter = "Data file (.dat)|*.dat";
+
+                    DialogResult result = sfd.ShowDialog();
+                    if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrEmpty(sfd.FileName))
+                    {
+                        treeManager.SerializeTree(sfd.FileName);
+                        System.Windows.MessageBox.Show("Object has been serialized");
+                    }
+                }
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("No files to serialize!");
+            }
+
+
+        }
+
+        private void deserializeButton_Click(object sender, RoutedEventArgs e)
+        {
+            using (var ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "Data file (.dat)|*.dat";
+                DialogResult result = ofd.ShowDialog();
+                if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrEmpty(ofd.FileName))
+                {
+                    try
+                    {
+                        Component component = DirectoryTreeManager.DeserializeTree(ofd.FileName);
+                        if (component != null)
+                        {
+                            treeManager = new DirectoryTreeManager(component);
+                            ShowTree();
+
+                            selectedFolderLabel.Content = ofd.FileName;
+                        }
+                    }
+                    catch (System.Exception ex)
+                    {
+                        System.Windows.MessageBox.Show(ex.Message);
+                    }
+                }
+
+            }
+        }
+
+        private void createFilesButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (treeManager != null && treeManager.IsRootDataExist)
+            {
+                using (var fbd = new FolderBrowserDialog())
+                {
+                    DialogResult result = fbd.ShowDialog();
+
+                    if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrEmpty(fbd.SelectedPath))
+                    {
+                        treeManager.CreateFiles(fbd.SelectedPath);
+                        System.Windows.MessageBox.Show("Files are created!");
+                    }
+                }
+            }
+            else
+            {
+                System.Windows.MessageBox.Show("No data to creat files!");
+            }
+
+        }
     }
 }

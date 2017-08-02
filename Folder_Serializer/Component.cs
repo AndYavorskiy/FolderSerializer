@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace Folder_Serializer
 {
+    [Serializable]
     abstract class Component
     {
         protected string fullName;
         public string FullName { get { return fullName; } }
+        public string Name { get { return Path.GetFileName(fullName); } }
+
         public bool HasChildren { get; protected set; }
 
         public Component(string fullName)
@@ -18,8 +19,9 @@ namespace Folder_Serializer
         }
 
         public abstract void Add(Component component);
-        public abstract int GetChildrenAmount();
         public abstract IReadOnlyList<Component> GetChildren();
-        
+        public abstract void ReadFilesData();
+        public abstract void WriteFilesData(string path);
+
     }
 }

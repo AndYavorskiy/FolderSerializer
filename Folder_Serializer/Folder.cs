@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace Folder_Serializer
 {
+    [Serializable]
     class Folder : Component
     {
         List<Component> children;
@@ -22,14 +21,28 @@ namespace Folder_Serializer
             HasChildren = true;
         }
 
-        public override int GetChildrenAmount()
-        {
-            return children.Count;
-        }
-
         public override IReadOnlyList<Component> GetChildren()
         {
             return children;
+        }
+
+        public override void ReadFilesData()
+        {
+            foreach (var item in children)
+            {
+                item.ReadFilesData();
+            }
+        }
+
+        public override void WriteFilesData(string path)
+        {
+            string currentPath = $"{path}\\{Name}";
+            Directory.CreateDirectory(currentPath);
+
+            foreach (var item in children)
+            {
+                item.WriteFilesData(currentPath);
+            }
         }
     }
 }

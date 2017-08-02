@@ -5,13 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Folder_Serializer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="505.737" Width="485.079">
+        Title="MainWindow" Height="505.737" Width="741.579">
     <Grid>
-        <Button x:Name="pickOutButton" Content="Pich out" HorizontalAlignment="Left" Margin="211,65,0,0" VerticalAlignment="Top" Width="75" Click="pickOutButton_Click"/>
-        <Label Content="Chouse folder to serealize:" HorizontalAlignment="Left" Margin="45,62,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="selectedFolderLabel" Content="doesn't selected" HorizontalAlignment="Left" Margin="45,93,0,0" VerticalAlignment="Top" Width="241"/>
-        <TreeView x:Name="treeViev" HorizontalAlignment="Left" Height="247" Margin="45,143,0,0" VerticalAlignment="Top" Width="380"/>
-        <Button x:Name="serializeButton" Content="Serialize" HorizontalAlignment="Left" Margin="350,395,0,0" VerticalAlignment="Top" Width="75"/>
+        <Button x:Name="pickOutButton" Content="Pick out" HorizontalAlignment="Left" Margin="648,36,0,0" VerticalAlignment="Top" Width="74" Click="pickOutButton_Click"/>
+        <Label Content="Chouse folder to serealize:" HorizontalAlignment="Left" Margin="482,34,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="selectedFolderLabel" Content="Doesn't selected" HorizontalAlignment="Left" Margin="45,30,0,0" VerticalAlignment="Top" Width="240"/>
+        <TreeView x:Name="treeViev" HorizontalAlignment="Left" Height="364" Margin="45,64,0,0" VerticalAlignment="Top" Width="380"/>
+        <Button x:Name="serializeButton" Content="Serialize" HorizontalAlignment="Left" Margin="497,140,0,0" VerticalAlignment="Top" Width="102" Click="serializeButton_Click"/>
+        <Button x:Name="deserializeButton" Content="Deserialize" HorizontalAlignment="Left" Margin="497,257,0,0" VerticalAlignment="Top" Width="102" Click="deserializeButton_Click"/>
+        <Button x:Name="createFilesButton" Content="Create files" HorizontalAlignment="Left" Margin="497,282,0,0" VerticalAlignment="Top" Width="103" Click="createFilesButton_Click"/>
 
     </Grid>
 </Window>

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace Folder_Serializer
 {
+    [Serializable]
     class File : Component
     {
+        private byte[] fileData;
+
         public File(string fullName) : base(fullName)
         { }
 
@@ -16,14 +17,28 @@ namespace Folder_Serializer
             throw new InvalidOperationException();
         }
 
-        public override int GetChildrenAmount()
-        {
-            return 0;
-        }
-
         public override IReadOnlyList<Component> GetChildren()
         {
             throw new InvalidOperationException();
+        }
+
+        public override void ReadFilesData()
+        {
+            using (FileStream fs = new FileStream(FullName, FileMode.Open))
+            {
+                fileData = new byte[fs.Length];
+
+                fs.Read(fileData, 0, (int)fs.Length);
+            }
+        }
+
+
+        public override void WriteFilesData(string path)
+        {
+            using (FileStream fs = new FileStream($"{path}\\{Name}", FileMode.CreateNew))
+            {
+                fs.Write(fileData, 0, (int)fileData.Length);
+            }
         }
     }
 }

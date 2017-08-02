@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Forms;
+using System.IO;
 
 namespace Folder_Serializer
 {
@@ -24,5 +26,48 @@ namespace Folder_Serializer
         {
             InitializeComponent();
         }
+
+        private void pickOutButton_Click(object sender, RoutedEventArgs e)
+        {
+            treeViev.Items.Clear();
+
+            using (var fbd = new FolderBrowserDialog())
+            {
+                DialogResult result = fbd.ShowDialog();
+
+                if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrEmpty(fbd.SelectedPath))
+                {
+                    selectedFolderLabel.Content = fbd.SelectedPath;
+
+                    TreeBuilder treeBuilder = new TreeBuilder(fbd.SelectedPath);
+                    treeBuilder.BuildTree();
+                    Component component = treeBuilder.Root;
+
+                    treeViev.Items.Add(treeBuilder.GetTreeView());
+
+                    #region PrevCode
+                    //selectedFolderLabel.Content = fbd.SelectedPath;
+
+                    //DirectoryInfo[] directories = new DirectoryInfo(fbd.SelectedPath).GetDirectories();
+
+                    //TreeViewItem tvi = new TreeViewItem();
+                    //tvi.Header = fbd.SelectedPath;
+
+                    //foreach (var item in directories)
+                    //{
+                    //    TreeViewItem treenode = new TreeViewItem() { Header = $"{item.FullName}" };
+                    //    foreach (var nodeItem in item.GetDirectories())
+                    //    {
+                    //        treenode.Items.Add(new TreeViewItem() { Header = $"{nodeItem.FullName}" });
+                    //    }
+                    //    tvi.Items.Add(treenode);
+                    //}
+                    //treeViev.Items.Add(tvi);
+                    #endregion
+                }
+            }
+        }
+
+        
     }
 }

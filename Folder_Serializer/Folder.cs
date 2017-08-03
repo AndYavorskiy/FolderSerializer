@@ -9,7 +9,6 @@ namespace Folder_Serializer
     {
         List<Component> children;
 
-
         public Folder(string fullName) : base(fullName)
         {
             children = new List<Component>();
@@ -28,20 +27,34 @@ namespace Folder_Serializer
 
         public override void ReadFilesData()
         {
-            foreach (var item in children)
+            try
             {
-                item.ReadFilesData();
+                foreach (var item in children)
+                {
+                    item.ReadFilesData();
+                }
             }
+            catch (Exception ex)
+            {
+                throw new InvalidDataException(ex.Message);
+            }
+
         }
 
         public override void WriteFilesData(string path)
         {
             string currentPath = $"{path}\\{Name}";
-            Directory.CreateDirectory(currentPath);
-
-            foreach (var item in children)
+            try
             {
-                item.WriteFilesData(currentPath);
+                Directory.CreateDirectory(currentPath);
+                foreach (var item in children)
+                {
+                    item.WriteFilesData(currentPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidDataException(ex.Message);
             }
         }
     }

@@ -24,20 +24,33 @@ namespace Folder_Serializer
 
         public override void ReadFilesData()
         {
-            using (FileStream fs = new FileStream(FullName, FileMode.Open))
+            try
             {
-                fileData = new byte[fs.Length];
-
-                fs.Read(fileData, 0, (int)fs.Length);
+                using (FileStream fs = new FileStream(FullName, FileMode.Open))
+                {
+                    fileData = new byte[fs.Length];
+                    fs.Read(fileData, 0, (int)fs.Length);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidDataException(ex.Message);
             }
         }
 
 
         public override void WriteFilesData(string path)
         {
-            using (FileStream fs = new FileStream($"{path}\\{Name}", FileMode.CreateNew))
+            try
             {
-                fs.Write(fileData, 0, (int)fileData.Length);
+                using (FileStream fs = new FileStream($"{path}\\{Name}", FileMode.CreateNew))
+                {
+                    fs.Write(fileData, 0, (int)fileData.Length);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidDataException(ex.Message);
             }
         }
     }

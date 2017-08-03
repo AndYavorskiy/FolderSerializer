@@ -8,27 +8,27 @@ namespace Folder_Serializer
     {
         public string CurrentPath { get; private set; }
         public Component Root { get; private set; }
-        public bool IsRootDataExist { get; private set; } = false;
+        public bool FilesDataExist { get; set; }
 
         public DirectoryTreeManager(string path)
         {
             CurrentPath = path;
-            Root = new Folder(CurrentPath);
+            BuildTree();
         }
 
         public DirectoryTreeManager(Component root)
         {
             Root = root;
-            IsRootDataExist = true;
+            FilesDataExist = true;
         }
 
         public void BuildTree()
         {
             DirectoryInfo directory = new DirectoryInfo(CurrentPath);
-            Root = Get(directory);
+            Root = ScanDirectory(directory);
         }
 
-        private Component Get(DirectoryInfo di)
+        private Component ScanDirectory(DirectoryInfo di)
         {
             Component component = new Folder(di.FullName);
 
@@ -37,10 +37,16 @@ namespace Folder_Serializer
             {
                 foreach (var item in directories)
                 {
-                    component.Add(Get(item));
+                    component.Add(ScanDirectory(item));
                 }
             }
+            ScanFiles(di, component);
 
+            return component;
+        }
+
+        private static void ScanFiles(DirectoryInfo di, Component component)
+        {
             FileInfo[] files = di.GetFiles();
             if (files.Length > 0)
             {
@@ -49,8 +55,6 @@ namespace Folder_Serializer
                     component.Add(new File(file.FullName));
                 }
             }
-
-            return component;
         }
 
         public TreeViewItem GetTreeView()
@@ -79,46 +83,75 @@ namespace Folder_Serializer
             return node;
         }
 
-        public void SerializeTree(string path)
+        public void TrySerializeTree(string path)
         {
-            Root.ReadFilesData();
-
-            BinaryFormatter formatter = new BinaryFormatter();
-            using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
+            try
             {
-                formatter.Serialize(fs, Root);
+                ReadFileData();
+
+                BinaryFormatter formatter = new BinaryFormatter();
+                using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
+                {
+                    formatter.Serialize(fs, Root);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw new InvalidDataException("Serealization error!\n Details: " + ex.Message);
             }
         }
 
-        public static Component DeserializeTree(string path)
+        private void ReadFileData()
+        {
+            try
+            {
+                Root.ReadFilesData();
+                FilesDataExist = true;
+            }
+            catch (System.Exception ex)
+            {
+                throw new InvalidDataException(ex.Message);
+            }
+        }
+
+        public static Component TryDeserializeTree(string path)
         {
             BinaryFormatter formatter = new BinaryFormatter();
 
-            using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
+            try
             {
-                Component deserilizeComponent = (Component)formatter.Deserialize(fs);
-                if (deserilizeComponent!=null)
+                using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
                 {
-                    return deserilizeComponent;
-                }
-                else
-                {
-                    throw new InvalidDataException("Deserealization error!");
+                    Component deserilizeComponent = (Component)formatter.Deserialize(fs);
+                    if (deserilizeComponent != null)
+                    {
+                        return deserilizeComponent;
+                    }
+                    else
+                    {
+                        throw new InvalidDataException("Deserealized file is null!");
+                    }
                 }
             }
+            catch (System.Exception ex)
+            {
+                throw new InvalidDataException("Deserealization error!\n Details: " + ex.Message);
+            }
+
+
         }
 
         public void CreateFiles(string path)
         {
-            if (Root == null)
-            {
-                BuildTree();
-            }
-
-            if (IsRootDataExist)
+            try
             {
                 Root.WriteFilesData(path);
             }
+            catch (System.Exception ex)
+            {
+                throw new InvalidDataException("Files creation error!\n Details: " + ex.Message);
+            }
+
         }
     }
 }

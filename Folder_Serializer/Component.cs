@@ -8,9 +8,8 @@ namespace Folder_Serializer
     abstract class Component
     {
         protected string fullName;
-        public string FullName { get { return fullName; } }
+        public string FullName { get { return fullName; }  }
         public string Name { get { return Path.GetFileName(fullName); } }
-
         public bool HasChildren { get; protected set; }
 
         public Component(string fullName)

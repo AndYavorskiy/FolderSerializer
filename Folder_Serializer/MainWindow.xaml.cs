@@ -1,11 +1,9 @@
-﻿using System.Windows;
+﻿using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Forms;
 
 namespace Folder_Serializer
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         DirectoryTreeManager treeManager;
@@ -17,7 +15,6 @@ namespace Folder_Serializer
 
         private void pickOutButton_Click(object sender, RoutedEventArgs e)
         {
-
             using (var fbd = new FolderBrowserDialog())
             {
                 DialogResult result = fbd.ShowDialog();
@@ -25,12 +22,12 @@ namespace Folder_Serializer
                 if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrEmpty(fbd.SelectedPath))
                 {
                     selectedFolderLabel.Content = fbd.SelectedPath;
+                    pickOutButton.IsEnabled = false;
 
                     treeManager = new DirectoryTreeManager(fbd.SelectedPath);
-                    treeManager.BuildTree();
                     ShowTree();
-
                 }
+                pickOutButton.IsEnabled = true;
             }
         }
 
@@ -40,41 +37,51 @@ namespace Folder_Serializer
             treeViev.Items.Add(treeManager.GetTreeView());
         }
 
-        private void serializeButton_Click(object sender, RoutedEventArgs e)
+        private async void serializeButton_Click(object sender, RoutedEventArgs e)
         {
             if (treeManager != null)
             {
-                using (var sfd = new SaveFileDialog())
+                using (var sfd = new SaveFileDialog() { Filter = "Data file (.dat)|*.dat" })
                 {
-                    sfd.Filter = "Data file (.dat)|*.dat";
-
                     DialogResult result = sfd.ShowDialog();
                     if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrEmpty(sfd.FileName))
                     {
-                        treeManager.SerializeTree(sfd.FileName);
-                        System.Windows.MessageBox.Show("Object has been serialized");
+                        try
+                        {
+                            serializeButton.IsEnabled = false;
+                            var slowTask = Task.Factory.StartNew(() => treeManager.TrySerializeTree(sfd.FileName));
+                            await slowTask;
+                            System.Windows.MessageBox.Show("Object has been serialized");
+                        }
+                        catch (System.Exception ex)
+                        {
+                            System.Windows.MessageBox.Show(ex.Message);
+                        }
+                        finally
+                        {
+                            serializeButton.IsEnabled = true;
+                        }
                     }
                 }
             }
-            else
-            {
-                System.Windows.MessageBox.Show("No files to serialize!");
-            }
-
-
+            else { System.Windows.MessageBox.Show("No files to serialize!"); }
         }
 
-        private void deserializeButton_Click(object sender, RoutedEventArgs e)
+        private async void deserializeButton_Click(object sender, RoutedEventArgs e)
         {
-            using (var ofd = new OpenFileDialog())
+            using (var ofd = new OpenFileDialog() { Filter = "Data file (.dat)|*.dat" })
             {
-                ofd.Filter = "Data file (.dat)|*.dat";
                 DialogResult result = ofd.ShowDialog();
                 if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrEmpty(ofd.FileName))
                 {
                     try
                     {
-                        Component component = DirectoryTreeManager.DeserializeTree(ofd.FileName);
+                        deserializeButton.IsEnabled = false;
+
+                        var slowTask = Task<Component>.Factory.StartNew(() => DirectoryTreeManager.TryDeserializeTree(ofd.FileName));
+                        await slowTask;
+
+                        Component component = slowTask.Result;
                         if (component != null)
                         {
                             treeManager = new DirectoryTreeManager(component);
@@ -87,14 +94,17 @@ namespace Folder_Serializer
                     {
                         System.Windows.MessageBox.Show(ex.Message);
                     }
+                    finally
+                    {
+                        deserializeButton.IsEnabled = true;
+                    }
                 }
-
             }
         }
 
-        private void createFilesButton_Click(object sender, RoutedEventArgs e)
+        private async void createFilesButton_Click(object sender, RoutedEventArgs e)
         {
-            if (treeManager != null && treeManager.IsRootDataExist)
+            if (treeManager != null && treeManager.FilesDataExist)
             {
                 using (var fbd = new FolderBrowserDialog())
                 {
@@ -102,16 +112,27 @@ namespace Folder_Serializer
 
                     if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrEmpty(fbd.SelectedPath))
                     {
-                        treeManager.CreateFiles(fbd.SelectedPath);
-                        System.Windows.MessageBox.Show("Files are created!");
+                        try
+                        {
+                            createFilesButton.IsEnabled = false;
+
+                            var slowTask = Task.Factory.StartNew(() => treeManager.CreateFiles(fbd.SelectedPath));
+                            await slowTask;
+                            
+                            System.Windows.MessageBox.Show("Files are created!");
+                        }
+                        catch (System.Exception ex)
+                        {
+                            System.Windows.MessageBox.Show(ex.Message);
+                        }
+                        finally
+                        {
+                            createFilesButton.IsEnabled = true;
+                        }
                     }
                 }
             }
-            else
-            {
-                System.Windows.MessageBox.Show("No data to creat files!");
-            }
-
+            else { System.Windows.MessageBox.Show("No data to creat files!"); }
         }
     }
 }

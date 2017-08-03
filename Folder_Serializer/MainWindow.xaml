@@ -4,16 +4,79 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Folder_Serializer"
+        xmlns:wfi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
+        xmlns:winForms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         mc:Ignorable="d"
-        Title="MainWindow" Height="505.737" Width="741.579">
-    <Grid>
-        <Button x:Name="pickOutButton" Content="Pick out" HorizontalAlignment="Left" Margin="648,36,0,0" VerticalAlignment="Top" Width="74" Click="pickOutButton_Click"/>
-        <Label Content="Chouse folder to serealize:" HorizontalAlignment="Left" Margin="482,34,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="selectedFolderLabel" Content="Doesn't selected" HorizontalAlignment="Left" Margin="45,30,0,0" VerticalAlignment="Top" Width="240"/>
-        <TreeView x:Name="treeViev" HorizontalAlignment="Left" Height="364" Margin="45,64,0,0" VerticalAlignment="Top" Width="380"/>
-        <Button x:Name="serializeButton" Content="Serialize" HorizontalAlignment="Left" Margin="497,140,0,0" VerticalAlignment="Top" Width="102" Click="serializeButton_Click"/>
-        <Button x:Name="deserializeButton" Content="Deserialize" HorizontalAlignment="Left" Margin="497,257,0,0" VerticalAlignment="Top" Width="102" Click="deserializeButton_Click"/>
-        <Button x:Name="createFilesButton" Content="Create files" HorizontalAlignment="Left" Margin="497,282,0,0" VerticalAlignment="Top" Width="103" Click="createFilesButton_Click"/>
-
+        Title="Folder Serializer" Height="500" Width="850" Icon="Components/icon.png">
+    <Grid OpacityMask="Black" Background="White">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="207*"/>
+            <ColumnDefinition Width="214*"/>
+        </Grid.ColumnDefinitions>
+        <Label x:Name="selectedFolderLabel" Content="Selected file or folder" Margin="10,15,18,0" VerticalAlignment="Top" Panel.ZIndex="1" Foreground="White" FontSize="14" BorderBrush="White" BorderThickness="1" d:IsLocked="True"/>
+        <TreeView x:Name="treeViev" Margin="10,51,18,10" RenderTransformOrigin="0.722,0.525" Panel.ZIndex="1" FontSize="14" BorderThickness="1" BorderBrush="White" d:IsLocked="True"/>
+        <Border BorderBrush="Black" BorderThickness="1" Margin="0,0,1,0" Background="#FF00AFF0" d:IsLocked="True"/>
+        <Grid Grid.Column="1" Height="90" Margin="10,15,10,0" VerticalAlignment="Top" d:IsLocked="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="pickOutButton" Content="Brouse" Margin="25,46,0,24" Click="pickOutButton_Click" Grid.Column="1" HorizontalAlignment="Left" Width="100" BorderBrush="#FF3899D0" Background="#FF3899D0" Foreground="White" FontWeight="Bold"/>
+            <Label Content="Choose folder to serealize" Margin="25,10,0,49" Foreground="#FF4472C4" FontSize="16" FontFamily="Segoe UI Symbol" Grid.Column="1" HorizontalAlignment="Left" Width="193"/>
+            <Image Source="Components/folder1.png" Margin="0,0,10,0">
+                <Image.OpacityMask>
+                    <ImageBrush ImageSource="Components/folder1.png"/>
+                </Image.OpacityMask>
+            </Image>
+        </Grid>
+        <Grid Grid.Column="1" Margin="10,110,10,0" Height="105" VerticalAlignment="Top" d:IsLocked="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="serializeButton" Content="Serialize" Margin="25,72,0,13" Click="serializeButton_Click" Grid.Column="1" HorizontalAlignment="Left" Width="100" BorderBrush="#FF3899D0" Background="#FF3899D0" Foreground="White" FontWeight="Bold"/>
+            <Label x:Name="serializeWaitLabel" Content="Processing... Please wait!" Margin="130,69,0,10" RenderTransformOrigin="0.653,0.462" Grid.Column="1" HorizontalAlignment="Left" Width="177" Foreground="#FFFFA200" Visibility="Hidden"/>
+            <Label Content="Save selected folder with files and&#xD;&#xA;subfolders into one file" Margin="25,10,19,41" Foreground="#FF4472C4" FontSize="16" FontFamily="Segoe UI Symbol" Grid.Column="1"/>
+            <Image Source="Components/document.png" Margin="10">
+                <Image.OpacityMask>
+                    <ImageBrush ImageSource="Components/document.png"/>
+                </Image.OpacityMask>
+            </Image>
+        </Grid>
+        <Grid Grid.Column="1" Margin="10,220,10,0" Height="125" VerticalAlignment="Top" d:IsLocked="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Image Source="Components/tree.png" Margin="6,10,10,10">
+                <Image.OpacityMask>
+                    <ImageBrush ImageSource="Components/tree.png" Stretch="Uniform"/>
+                </Image.OpacityMask>
+            </Image>
+            <Button x:Name="deserializeButton" Content="Deserialize" Margin="25,72,0,0" VerticalAlignment="Top" Click="deserializeButton_Click" Grid.Column="1" HorizontalAlignment="Left" Width="100" BorderBrush="#FF3899D0" Background="#FF3899D0" Foreground="White" FontWeight="Bold"/>
+            <Label x:Name="deserializeWaitLabel" Content="Processing... Please wait!" Margin="130,69,0,30" RenderTransformOrigin="0.827,0.218" Grid.Column="1" HorizontalAlignment="Left" Width="177" Foreground="#FFFFA200" Visibility="Hidden"/>
+            <Label Content="Deserialize file with folder structure" Margin="25,20,16,74" Foreground="#FF4472C4" FontSize="16" FontFamily="Segoe UI Symbol" Grid.Column="1"/>
+        </Grid>
+        <Grid Grid.Column="1" Margin="10,350,10,0" Height="109" VerticalAlignment="Top" d:IsLocked="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Image Source="Components/box.png" Margin="0,10">
+                <Image.OpacityMask>
+                    <ImageBrush ImageSource="Components/box.png"/>
+                </Image.OpacityMask>
+            </Image>
+            <Label Content="Unpack the folders and files into the &#xD;&#xA;selected folder" Margin="25,10,0,0" VerticalAlignment="Top" Foreground="#FF4472C4" FontSize="16" FontFamily="Segoe UI Symbol" Grid.Column="1" HorizontalAlignment="Left" Width="265"/>
+            <Button x:Name="createFilesButton" Content="Create files" Margin="25,65,0,24" Click="createFilesButton_Click" Grid.Column="1" HorizontalAlignment="Left" Width="100" BorderBrush="#FF3899D0" Background="#FF3899D0" Foreground="White" FontWeight="Bold"/>
+            <Label x:Name="createFileWaitLabel" Content="Creating files... Please wait!" Margin="130,62,0,21" Grid.Column="1" HorizontalAlignment="Left" Width="177" Foreground="#FFFFA200" Visibility="Hidden"/>
+        </Grid>
+        <Grid x:Name="Waiting_grid" Opacity="70" Grid.ColumnSpan="2" Panel.ZIndex="2">
+            <Grid.Background>
+                <SolidColorBrush Color="White" Opacity="0.9"/>
+            </Grid.Background>
+            <Image Source="Components/cranninng_folder.png" Margin="343,101,326,0" Panel.ZIndex="3" Height="174" VerticalAlignment="Top"/>
+            <Label Content="Folder scanning..." Margin="10,294,10,0" Foreground="#FF3BB3CE" HorizontalContentAlignment="Center" FontSize="36" Height="74" VerticalAlignment="Top"/>
+        </Grid>
     </Grid>
 </Window>

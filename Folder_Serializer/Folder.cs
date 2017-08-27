@@ -5,52 +5,47 @@ using System.IO;
 namespace Folder_Serializer
 {
     [Serializable]
-    class Folder : Component
+    internal class Folder : Component
     {
-        List<Component> children;
+        private readonly List<Component> _children;
 
         public Folder(string fullName) : base(fullName)
         {
-            children = new List<Component>();
+            _children = new List<Component>();
         }
 
         public override void Add(Component component)
         {
-            children.Add(component);
+            _children.Add(component);
             HasChildren = true;
         }
 
         public override IReadOnlyList<Component> GetChildren()
         {
-            return children;
+            return _children;
         }
 
         public override void ReadFilesData()
         {
             try
             {
-                foreach (var item in children)
-                {
+                foreach (var item in _children)
                     item.ReadFilesData();
-                }
             }
             catch (Exception ex)
             {
                 throw new InvalidDataException(ex.Message);
             }
-
         }
 
         public override void WriteFilesData(string path)
         {
-            string currentPath = $"{path}\\{Name}";
+            var currentPath = $"{path}\\{Name}";
             try
             {
                 Directory.CreateDirectory(currentPath);
-                foreach (var item in children)
-                {
+                foreach (var item in _children)
                     item.WriteFilesData(currentPath);
-                }
             }
             catch (Exception ex)
             {

@@ -1,15 +1,15 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Controls;
 
 namespace Folder_Serializer
 {
-    class DirectoryTreeManager
+    /// <summary>
+    ///     sdsd
+    /// </summary>
+    internal class DirectoryTreeManager
     {
-        public string CurrentPath { get; private set; }
-        public Component Root { get; private set; }
-        public bool FilesDataExist { get; set; }
-
         public DirectoryTreeManager(string path)
         {
             CurrentPath = path;
@@ -22,9 +22,15 @@ namespace Folder_Serializer
             FilesDataExist = true;
         }
 
+        public string CurrentPath { get; }
+
+        public Component Root { get; private set; }
+
+        public bool FilesDataExist { get; set; }
+
         public void BuildTree()
         {
-            DirectoryInfo directory = new DirectoryInfo(CurrentPath);
+            var directory = new DirectoryInfo(CurrentPath);
             Root = ScanDirectory(directory);
         }
 
@@ -32,14 +38,10 @@ namespace Folder_Serializer
         {
             Component component = new Folder(di.FullName);
 
-            DirectoryInfo[] directories = di.GetDirectories();
+            var directories = di.GetDirectories();
             if (directories.Length > 0)
-            {
                 foreach (var item in directories)
-                {
                     component.Add(ScanDirectory(item));
-                }
-            }
             ScanFiles(di, component);
 
             return component;
@@ -47,38 +49,27 @@ namespace Folder_Serializer
 
         private static void ScanFiles(DirectoryInfo di, Component component)
         {
-            FileInfo[] files = di.GetFiles();
-            if (files.Length > 0)
-            {
-                foreach (var file in files)
-                {
-                    component.Add(new File(file.FullName));
-                }
-            }
+            var files = di.GetFiles();
+            if (files.Length <= 0) return;
+            foreach (var file in files)
+                component.Add(new File(file.FullName));
         }
 
         public TreeViewItem GetTreeView()
         {
             if (Root == null)
-            {
                 BuildTree();
-            }
 
             return BuildTreeView(Root);
         }
 
         private TreeViewItem BuildTreeView(Component component)
         {
-            TreeViewItem node = new TreeViewItem();
-            node.Header = component.Name;
+            var node = new TreeViewItem {Header = component.Name};
 
-            if (component.HasChildren)
-            {
-                foreach (var item in component.GetChildren())
-                {
-                    node.Items.Add(BuildTreeView(item));
-                }
-            }
+            if (!component.HasChildren) return node;
+            foreach (var item in component.GetChildren())
+                node.Items.Add(BuildTreeView(item));
 
             return node;
         }
@@ -89,13 +80,13 @@ namespace Folder_Serializer
             {
                 ReadFileData();
 
-                BinaryFormatter formatter = new BinaryFormatter();
-                using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
+                var formatter = new BinaryFormatter();
+                using (var fs = new FileStream(path, FileMode.OpenOrCreate))
                 {
                     formatter.Serialize(fs, Root);
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 throw new InvalidDataException("Serealization error!\n Details: " + ex.Message);
             }
@@ -108,7 +99,7 @@ namespace Folder_Serializer
                 Root.ReadFilesData();
                 FilesDataExist = true;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 throw new InvalidDataException(ex.Message);
             }
@@ -116,29 +107,20 @@ namespace Folder_Serializer
 
         public static Component TryDeserializeTree(string path)
         {
-            BinaryFormatter formatter = new BinaryFormatter();
+            var formatter = new BinaryFormatter();
 
             try
             {
-                using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
+                using (var fs = new FileStream(path, FileMode.OpenOrCreate))
                 {
-                    Component deserilizeComponent = (Component)formatter.Deserialize(fs);
-                    if (deserilizeComponent != null)
-                    {
-                        return deserilizeComponent;
-                    }
-                    else
-                    {
-                        throw new InvalidDataException("Deserealized file is null!");
-                    }
+                    var deserilizeComponent = (Component) formatter.Deserialize(fs);
+                    return deserilizeComponent;
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 throw new InvalidDataException("Deserealization error!\n Details: " + ex.Message);
             }
-
-
         }
 
         public void CreateFiles(string path)
@@ -147,11 +129,10 @@ namespace Folder_Serializer
             {
                 Root.WriteFilesData(path);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 throw new InvalidDataException("Files creation error!\n Details: " + ex.Message);
             }
-
         }
     }
 }

@@ -5,12 +5,13 @@ using System.IO;
 namespace Folder_Serializer
 {
     [Serializable]
-    class File : Component
+    internal class File : Component
     {
-        private byte[] fileData;
+        private byte[] _fileData;
 
         public File(string fullName) : base(fullName)
-        { }
+        {
+        }
 
         public override void Add(Component component)
         {
@@ -26,10 +27,10 @@ namespace Folder_Serializer
         {
             try
             {
-                using (FileStream fs = new FileStream(FullName, FileMode.Open))
+                using (var fs = new FileStream(FullName, FileMode.Open))
                 {
-                    fileData = new byte[fs.Length];
-                    fs.Read(fileData, 0, (int)fs.Length);
+                    _fileData = new byte[fs.Length];
+                    fs.Read(_fileData, 0, (int) fs.Length);
                 }
             }
             catch (Exception ex)
@@ -43,9 +44,9 @@ namespace Folder_Serializer
         {
             try
             {
-                using (FileStream fs = new FileStream($"{path}\\{Name}", FileMode.CreateNew))
+                using (var fs = new FileStream($"{path}\\{Name}", FileMode.CreateNew))
                 {
-                    fs.Write(fileData, 0, (int)fileData.Length);
+                    fs.Write(_fileData, 0, _fileData.Length);
                 }
             }
             catch (Exception ex)
